@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.js": "/coursework-vector/static/js/main.2eb614dd.chunk.js",
-    "main.js.map": "/coursework-vector/static/js/main.2eb614dd.chunk.js.map",
+    "main.js": "/coursework-vector/static/js/main.34fdd6f4.chunk.js",
+    "main.js.map": "/coursework-vector/static/js/main.34fdd6f4.chunk.js.map",
     "runtime-main.js": "/coursework-vector/static/js/runtime-main.87d6952f.js",
     "runtime-main.js.map": "/coursework-vector/static/js/runtime-main.87d6952f.js.map",
     "static/js/2.56dec742.chunk.js": "/coursework-vector/static/js/2.56dec742.chunk.js",
     "static/js/2.56dec742.chunk.js.map": "/coursework-vector/static/js/2.56dec742.chunk.js.map",
     "index.html": "/coursework-vector/index.html",
-    "precache-manifest.ecf7a7b2c8cb0a38e48f9cf3be68f46c.js": "/coursework-vector/precache-manifest.ecf7a7b2c8cb0a38e48f9cf3be68f46c.js",
+    "precache-manifest.1a1ac848ae4f2ffadad684715b1a8e52.js": "/coursework-vector/precache-manifest.1a1ac848ae4f2ffadad684715b1a8e52.js",
     "service-worker.js": "/coursework-vector/service-worker.js",
     "static/js/2.56dec742.chunk.js.LICENSE.txt": "/coursework-vector/static/js/2.56dec742.chunk.js.LICENSE.txt",
     "static/media/calculate-black-24dp.0330955c.svg": "/coursework-vector/static/media/calculate-black-24dp.0330955c.svg",
@@ -16,6 +16,6 @@
   "entrypoints": [
     "static/js/runtime-main.87d6952f.js",
     "static/js/2.56dec742.chunk.js",
-    "static/js/main.2eb614dd.chunk.js"
+    "static/js/main.34fdd6f4.chunk.js"
   ]
 }
