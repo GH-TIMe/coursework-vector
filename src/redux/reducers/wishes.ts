@@ -6,6 +6,7 @@ import {
   WishesData,
   WishesItemTypes,
   WishesTypes,
+  BlocksData,
 } from "../../types";
 
 interface StateTypes {
@@ -20,10 +21,10 @@ const initialState: StateTypes = {
   scheme: 1315,
 };
 
-const regexFirstGroupCode: RegExp = /^([0-9][0-9]*)\./;
-const regexSecondGroupCode: RegExp = /^([0-9][0-9]*\.[0-9]*)/;
+export const groupData = (data: WishesData[]) => {
+  const regexFirstGroupCode: RegExp = /^([0-9][0-9]*)\./;
+  const regexSecondGroupCode: RegExp = /^([0-9][0-9]*\.[0-9]*)/;
 
-const groupData = (data: WishesData[]) => {
   const newData = data.map((item) => {
     const firstGroup: string =
       item.code.match(regexFirstGroupCode)![1] || "all";
@@ -57,13 +58,13 @@ const groupData = (data: WishesData[]) => {
   return groups;
 };
 
-type ValuesTypes = {
+export type ValuesTypes = {
   amount: number;
   price: number;
   mult: number;
 };
 
-const doCalculates = (arr: any) => {
+export const doCalculates = (arr: any) => {
   return arr.reduce(
     (r: ValuesTypes, a: { price: number; amount: string | number }) => {
       r.mult += a.price * +a.amount;
@@ -79,7 +80,7 @@ const doCalculates = (arr: any) => {
   );
 };
 
-const getSumsAndAvg = (data: any) => {
+export const getSumsAndAvg = (data: any) => {
   Object.keys(data).forEach((key1) => {
     Object.keys(data[key1].values).forEach((key2) => {
       const { amount, price, mult } = doCalculates(
@@ -112,7 +113,7 @@ const getSumsAndAvg = (data: any) => {
   return data;
 };
 
-const getKeysObj = (obj: any) => {
+export const getKeysObj = (obj: any) => {
   let newObj = { status: false };
   if (!Array.isArray(obj)) {
     for (let key in obj) {

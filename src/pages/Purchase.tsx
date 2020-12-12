@@ -56,46 +56,34 @@ const columns: ColumnsTypes[] = [
 type ToolbarPropsTypes = {
   model: string;
   scheme: string | undefined;
+  changed: string | undefined;
 };
 
-const PurchaceToolbar = ({ model, scheme }: ToolbarPropsTypes) => {
+const PurchaceToolbar = ({ model, scheme, changed }: ToolbarPropsTypes) => {
   const classes = useStyles();
 
   const history = useHistory();
-
-  const handleClickBack = () => {
-    history.push(`/${model}/wishes`);
-  };
 
   const handleClickCalculate = () => {
     alert("Рассчитать линейно");
   };
 
   const handleClickRefuse = () => {
-    alert("Отказаться");
+    const URL = changed
+      ? `/${model}/schemes/${scheme}/wishes`
+      : `/${model}/wishes`;
+    history.push(URL);
   };
 
   const handleClickAccept = () => {
-    history.push(`/${model}/schemes/${scheme}/production`);
+    history.push(
+      `/${model}/schemes/${scheme}/production${changed ? "/1" : ""}`
+    );
   };
 
   return (
     <Toolbar className={classes.toolBar}>
       <div className="left-side">
-        <CustomTooltip title="Продажи">
-          <IconButton
-            color="secondary"
-            aria-label="back"
-            onClick={handleClickBack}
-          >
-            <KeyboardBackspaceIcon />
-          </IconButton>
-        </CustomTooltip>
-      </div>
-      <Typography variant="h6" component="h2">
-        Корректировка плана закупок
-      </Typography>
-      <div className="right-side">
         <CustomTooltip title="Отказаться">
           <IconButton
             color="secondary"
@@ -105,6 +93,11 @@ const PurchaceToolbar = ({ model, scheme }: ToolbarPropsTypes) => {
             <ClearIcon />
           </IconButton>
         </CustomTooltip>
+      </div>
+      <Typography variant="h6" component="h2">
+        Корректировка плана закупок
+      </Typography>
+      <div className="right-side">
         <CustomTooltip title="Рассчитать линейно">
           <IconButton
             color="secondary"
@@ -136,12 +129,12 @@ const Purchases = ({ match }: MatchProps) => {
 
   // load purchases
   const dispatch = useDispatch();
-  const { id: model, id2: scheme } = match.params;
+  const { id: model, id2: scheme, changed } = match.params;
 
   const rows = useSelector(selectPurchase);
 
   useEffect(() => {
-    dispatch(setStep(2));
+    dispatch(setStep(changed ? 6 : 2));
     dispatch(getPurchases(model, scheme));
   }, [dispatch, model, scheme]);
 
@@ -185,7 +178,7 @@ const Purchases = ({ match }: MatchProps) => {
   return (
     <Paper className={classes.root}>
       <TableContainer className={classes.container}>
-        <PurchaceToolbar model={model} scheme={scheme} />
+        <PurchaceToolbar model={model} scheme={scheme} changed={changed} />
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow className={classes.header}>

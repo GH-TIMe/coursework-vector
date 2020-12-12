@@ -8,6 +8,8 @@ import NumberFormat from "react-number-format";
 
 import { setStep } from "../redux/actions/steps";
 
+import { MatchProps } from "../types";
+
 interface NumberFormatCustomProps {
   inputRef: (instance: NumberFormat | null) => void;
   onChange: (event: { target: { value: string } }) => void;
@@ -33,7 +35,9 @@ function NumberFormatCustom(props: NumberFormatCustomProps) {
   );
 }
 
-const Launch = () => {
+const Launch = ({ match }: MatchProps) => {
+  const { id: model, id2: scheme } = match.params;
+
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -74,7 +78,7 @@ const Launch = () => {
 
   const handleClickRun = () => {
     alert("Моделирование запущенно!");
-    history.push("/power_bi");
+    history.push(`/${model}/schemes/${scheme}/wishes`);
   };
 
   return (

@@ -4,8 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { getViewData } from "../redux/actions/schemes";
 import { ColumnsTypes, SchemesStateTypes, MatchProps } from "../types";
 
-import { CustomTable } from "../components";
-
 const ViewTable = ({ match }: MatchProps) => {
   const dispatch = useDispatch();
   const id = +match.params.id;
@@ -25,7 +23,7 @@ const ViewTable = ({ match }: MatchProps) => {
     dispatch(getViewData(id));
   }, [dispatch, id]);
 
-  return <CustomTable rows={rows} columns={columns} />;
+  return <></>;
 };
 
 export default ViewTable;

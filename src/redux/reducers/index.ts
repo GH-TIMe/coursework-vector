@@ -7,6 +7,7 @@ import purchase from "./purchase";
 import production from "./production";
 import products from "./products";
 import steps from "./steps";
+import budget from "./budget";
 
 const root = combineReducers({
   models,
@@ -16,6 +17,7 @@ const root = combineReducers({
   production,
   products,
   steps,
+  budget,
 });
 
 export type RootState = ReturnType<typeof root>;

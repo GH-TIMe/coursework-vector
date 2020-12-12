@@ -10,6 +10,7 @@ import {
   Purchase,
   Production,
   Launch,
+  Budget,
 } from "./pages";
 import { CustomizedSteppers } from "./components";
 
@@ -35,7 +36,6 @@ const App = () => {
       <Switch>
         <Route exact path="/" component={Models} />
         <Route exact path="/power_bi" component={PowerBI} />
-        <Route exact path="/:id/schemes" component={ViewTable} />
         <Route exact path="/:id/wishes" component={Wishes} />
         <Route exact path="/:id/schemes/:id2/purchase" component={Purchase} />
         <Route
@@ -45,6 +45,17 @@ const App = () => {
         />
         <Route exact path="/:id/schemes/:id2/launch" component={Launch} />
         <Route exact path="/:id/schemes/:id2/wishes" component={EditTable} />
+        <Route
+          exact
+          path="/:id/schemes/:id2/purchase/:changed"
+          component={Purchase}
+        />
+        <Route
+          exact
+          path="/:id/schemes/:id2/production/:changed"
+          component={Production}
+        />
+        <Route exact path="/:id/schemes/:id2/budget" component={Budget} />
       </Switch>
     </ThemeProvider>
   );

@@ -101,19 +101,27 @@ export type ProductionData = {
 
 export type ProductsData = {
   id: number;
-  amount?: string;
-  code?: string;
-  curr_cost?: number;
-  curr_rent?: number;
-  last_cost?: number;
-  last_price?: number;
-  last_rent?: number;
-  last_volume?: string;
-  name?: string;
-  price?: number;
+  amount: string;
+  code: string;
+  curr_cost: number;
+  curr_rent: number;
+  last_cost: number;
+  last_price: number;
+  last_rent: number;
+  last_volume: string;
+  name: string;
+  price: number;
 };
 
 export type DataTypes = ModelsData & ShemesData & ProductsData;
+
+export type BlocksData = {
+  amount: string;
+  code: string;
+  id: number;
+  name: string;
+  price: string;
+};
 
 // state types
 
@@ -161,6 +169,7 @@ export interface StepStateTypes {
 interface MatchParams {
   id: string;
   id2?: string;
+  changed?: string;
 }
 
 export interface MatchProps extends RouteComponentProps<MatchParams> {}
@@ -270,13 +279,27 @@ export type ProductionActionType =
 // products
 
 export const SET_PRODUCTS = "SET_PRODUCTS";
+export const SAVE_PRODUCTS = "SAVE_PRODUCTS";
 
 interface SetPropductsAction {
   type: typeof SET_PRODUCTS;
   payload: ProductsData[];
 }
 
-export type ProductsActionType = SetPropductsAction;
+export type PayloadSaveProductsAction = {
+  index: number;
+  values: {
+    price: number;
+    amount: number;
+  };
+};
+
+type SaveProductsAction = {
+  type: typeof SAVE_PRODUCTS;
+  payload: PayloadSaveProductsAction;
+};
+
+export type ProductsActionType = SetPropductsAction | SaveProductsAction;
 
 // steps
 
@@ -288,3 +311,20 @@ interface SetStepAction {
 }
 
 export type StepsActionType = SetStepAction;
+
+// budget
+
+export const SET_BLOCKS_SELL = "SET_BLOCKS_SELL";
+export const SET_BLOCKS_ADD = "SET_BLOCKS_ADD";
+
+type SetBlocksSellAction = {
+  type: typeof SET_BLOCKS_SELL;
+  payload: WishesData[];
+};
+
+type SetBlocksAddAction = {
+  type: typeof SET_BLOCKS_ADD;
+  payload: BlocksData[];
+};
+
+export type BudgetActionTypes = SetBlocksSellAction | SetBlocksAddAction;

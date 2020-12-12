@@ -42,42 +42,31 @@ const selectProduction = ({ production }: ProductionStateTypes) => production;
 type ToolbarPropsTypes = {
   model: string;
   scheme: string | undefined;
+  changed: string | undefined;
 };
 
-const ProductionToolbar = ({ model, scheme }: ToolbarPropsTypes) => {
+const ProductionToolbar = ({ model, scheme, changed }: ToolbarPropsTypes) => {
   const classes = useStyles();
 
   const history = useHistory();
 
-  const handleClickBack = () => {
-    history.push(`/${model}/schemes/${scheme}/purchase`);
-  };
-
   const handleClickRefuse = () => {
-    alert("Отказаться");
+    const URL = changed
+      ? `/${model}/schemes/${scheme}/wishes`
+      : `/${model}/wishes`;
+    history.push(URL);
   };
 
   const handleClickAccept = () => {
-    history.push(`/${model}/schemes/${scheme}/launch`);
+    const URL = changed
+      ? `/${model}/schemes/${scheme}/budget`
+      : `/${model}/schemes/${scheme}/launch`;
+    history.push(URL);
   };
 
   return (
     <Toolbar className={classes.toolBar}>
       <div className="left-side">
-        <CustomTooltip title="Закупки">
-          <IconButton
-            color="secondary"
-            aria-label="back"
-            onClick={handleClickBack}
-          >
-            <KeyboardBackspaceIcon />
-          </IconButton>
-        </CustomTooltip>
-      </div>
-      <Typography variant="h6" component="h2">
-        Корректировка плана производства
-      </Typography>
-      <div className="right-side">
         <CustomTooltip title="Отказаться">
           <IconButton
             color="secondary"
@@ -87,6 +76,11 @@ const ProductionToolbar = ({ model, scheme }: ToolbarPropsTypes) => {
             <ClearIcon />
           </IconButton>
         </CustomTooltip>
+      </div>
+      <Typography variant="h6" component="h2">
+        Корректировка плана производства
+      </Typography>
+      <div className="right-side">
         <CustomTooltip title="Принять">
           <IconButton
             color="primary"
@@ -105,10 +99,10 @@ const Production = ({ match }: MatchProps) => {
   const classes = useStyles();
 
   const dispatch = useDispatch();
-  const { id: model, id2: scheme } = match.params;
+  const { id: model, id2: scheme, changed } = match.params;
 
   useEffect(() => {
-    dispatch(setStep(3));
+    dispatch(setStep(changed ? 6 : 3));
     dispatch(getProduction(model, scheme));
   }, [dispatch, model, scheme]);
 
@@ -121,7 +115,7 @@ const Production = ({ match }: MatchProps) => {
   return (
     <Paper className={classes.root}>
       <TableContainer className={classes.container}>
-        <ProductionToolbar model={model} scheme={scheme} />
+        <ProductionToolbar model={model} scheme={scheme} changed={changed} />
         <Table stickyHeader aria-label="sticky table" size="small">
           <TableHead>
             <TableRow className={classes.header}>

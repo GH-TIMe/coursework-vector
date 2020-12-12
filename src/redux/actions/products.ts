@@ -1,6 +1,12 @@
 import axios from "axios";
 import { API_HOST, API_PATH } from "../../config";
-import { SET_PRODUCTS, ProductsActionType, ProductsData } from "../../types";
+import {
+  SET_PRODUCTS,
+  SAVE_PRODUCTS,
+  ProductsActionType,
+  ProductsData,
+  PayloadSaveProductsAction,
+} from "../../types";
 import { Action } from "redux";
 import { RootState } from "../reducers/index";
 import { ThunkAction } from "redux-thunk";
@@ -17,4 +23,11 @@ export const getProducts = (
 export const setProducts = (products: ProductsData[]): ProductsActionType => ({
   type: SET_PRODUCTS,
   payload: products,
+});
+
+export const saveProducts = (
+  obj: PayloadSaveProductsAction
+): ProductsActionType => ({
+  type: SAVE_PRODUCTS,
+  payload: obj,
 });

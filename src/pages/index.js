@@ -6,3 +6,4 @@ export { default as Purchase } from "./Purchase";
 export { default as Production } from "./Production";
 export { default as Launch } from "./Launch";
 export { default as EditTable } from "./SchemesWishes";
+export { default as Budget } from "./Budget";
