@@ -46,15 +46,9 @@ const products = (
       }
 
       // создаём request
-      if (oldLastPrice !== price) {
-        state.request.append(`${modifedProducts[index].id}_price`, "" + price);
-      }
-      if (+oldLastAmount !== amount) {
-        state.request.append(
-          `${modifedProducts[index].id}_amount`,
-          "" + amount
-        );
-      }
+
+      state.request.append(`${modifedProducts[index].id}_price`, "" + price);
+      state.request.append(`${modifedProducts[index].id}_amount`, "" + amount);
 
       modifedProducts[index] = {
         ...modifedProducts[index],

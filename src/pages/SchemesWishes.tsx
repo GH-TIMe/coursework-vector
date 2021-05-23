@@ -159,7 +159,9 @@ const EditTable = ({ match }: MatchProps) => {
       method: "post",
       url: `${API_HOST}/${API_PATH}/${model}/schemes/${scheme}/wishes/`,
       data: request,
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     }).then((res) => {
       const schemeID: number = res.data["scheme_id"];
       history.push(`/${model}/schemes/${schemeID}/purchase/1`);
