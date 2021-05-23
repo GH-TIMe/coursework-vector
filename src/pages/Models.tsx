@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 
-import { CustomTooltip, EnhancedTableToolbar } from "../components";
+import { CustomTooltip } from "../components";
 
 import { getModels } from "../redux/actions/models";
 import { setStep } from "../redux/actions/steps";
@@ -23,7 +23,6 @@ import {
 } from "@material-ui/core";
 
 import ReceiptIcon from "@material-ui/icons/Receipt";
-import CodeIcon from "@material-ui/icons/Code";
 import AssessmentIcon from "@material-ui/icons/Assessment";
 import AddIcon from "@material-ui/icons/Add";
 
@@ -70,15 +69,16 @@ export default function Models() {
 
   const history = useHistory();
 
-  const handleSchemesClick = (id: number) => {
-    history.push(`/${id}/schemes`);
-  };
   const handleWishesClick = (id: number) => {
     history.push(`/${id}/wishes`);
   };
 
   const handlePowerBIClick = () => {
-    history.push(`/power_bi`);
+    history.push("/power_bi");
+  };
+
+  const handleAddModelClick = () => {
+    history.push("/add_model");
   };
 
   return (
@@ -90,7 +90,11 @@ export default function Models() {
           </Typography>
           <div className="right-side">
             <CustomTooltip title="Добавить модель">
-              <IconButton color="secondary" aria-label="add model">
+              <IconButton
+                color="secondary"
+                aria-label="add model"
+                onClick={handleAddModelClick}
+              >
                 <AddIcon />
               </IconButton>
             </CustomTooltip>
@@ -120,27 +124,9 @@ export default function Models() {
             {rows.map((row) => {
               return (
                 <TableRow key={row.id}>
-                  <TableCell>
+                  <TableCell align="center">
                     <CustomTooltip
-                      title={
-                        <React.Fragment>
-                          <Typography color="inherit">
-                            Служебная страница
-                          </Typography>
-                          Здесь доступны все schemes для модели
-                        </React.Fragment>
-                      }
-                    >
-                      <IconButton
-                        color="secondary"
-                        aria-label="go to all schemes for model"
-                        onClick={() => handleSchemesClick(row.id)}
-                      >
-                        <CodeIcon />
-                      </IconButton>
-                    </CustomTooltip>
-                    <CustomTooltip
-                      title={<React.Fragment>Шаг №2</React.Fragment>}
+                      title={<React.Fragment>Продажи</React.Fragment>}
                     >
                       <IconButton
                         onClick={() => handleWishesClick(row.id)}

@@ -10,6 +10,11 @@ export const useStyles = makeStyles({
     maxHeight: "580px",
     height: "calc(100vh - 150px)",
   },
+  budgetTables: {
+    width: "100%",
+    maxWidth: "1000px",
+    margin: "0 auto 30px",
+  },
   row: {
     cursor: "pointer",
   },
@@ -36,5 +41,9 @@ export const useStyles = makeStyles({
   toolBar: {
     display: "flex",
     justifyContent: "space-between",
+  },
+  formControl: {
+    minWidth: 120,
+    maxWidth: 300,
   },
 });

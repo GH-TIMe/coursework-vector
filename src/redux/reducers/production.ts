@@ -1,3 +1,4 @@
+import { expandOrCloseAll } from "../../helpers";
 import {
   SET_PRODUCTION,
   SET_PRODUCTION_STATUS,
@@ -5,16 +6,23 @@ import {
   ProductionData,
   ProductionTypes,
   ProductionItemTypes,
+  EXPAND_ALL_PRODUCTION,
+  CLOSE_ALL_PRODUCTION,
+  SET_PRODUCTION_LOADED,
 } from "../../types";
 
 interface StateTypes {
   production: ProductionTypes;
   status: any;
+  isOpen: boolean;
+  loaded: boolean;
 }
 
 const initialState: StateTypes = {
   production: {},
   status: {},
+  isOpen: false,
+  loaded: true,
 };
 
 const regexFirstGroupCode: RegExp = /^([0-9][0-9]*)\./;
@@ -102,7 +110,7 @@ const getKeysObj = (obj: any) => {
   return newObj;
 };
 
-const products = (
+const production = (
   state = initialState,
   action: ProductionActionType
 ): StateTypes => {
@@ -151,9 +159,29 @@ const products = (
         ...state,
       };
     }
+    case SET_PRODUCTION_LOADED: {
+      return {
+        ...state,
+        loaded: action.payload,
+      };
+    }
+    case EXPAND_ALL_PRODUCTION: {
+      return {
+        ...state,
+        status: expandOrCloseAll(state.status),
+        isOpen: true,
+      };
+    }
+    case CLOSE_ALL_PRODUCTION: {
+      return {
+        ...state,
+        status: expandOrCloseAll(state.status, false),
+        isOpen: false,
+      };
+    }
     default:
       return { ...state };
   }
 };
 
-export default products;
+export default production;

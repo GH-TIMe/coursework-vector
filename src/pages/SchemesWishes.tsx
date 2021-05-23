@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 
-import { getProducts, saveProducts } from "../redux/actions/products";
+import {
+  clearProductsRequest,
+  getProducts,
+  saveProducts,
+  setProductsLoaded,
+} from "../redux/actions/products";
 import { setStep } from "../redux/actions/steps";
-import { ProductsStateTypes, MatchProps, ProductsData } from "../types";
+import { MatchProps, ProductsData } from "../types";
 import NumberFormat from "react-number-format";
 
 import { useStyles } from "../styles";
@@ -33,6 +38,11 @@ import {
   Functions as FunctionsIcon,
 } from "@material-ui/icons";
 import { useHistory } from "react-router-dom";
+
+import axios from "axios";
+import { API_HOST, API_PATH } from "../config";
+import { useAppSelector } from "../redux/store";
+import Loader from "../components/Loader";
 
 type ColumnsTypes = {
   id: keyof ProductsData;
@@ -79,17 +89,20 @@ const columns: ColumnsTypes[] = [
   },
 ];
 
-const selectProducts = ({ products: { products } }: ProductsStateTypes) =>
-  products;
-
 const EditTable = ({ match }: MatchProps) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const { id: model, id2: scheme } = match.params;
 
-  const rows = useSelector(selectProducts);
+  const {
+    products: rows,
+    request,
+    loaded,
+  } = useAppSelector((state) => state.products);
 
   useEffect(() => {
+    dispatch(setProductsLoaded(false));
+    dispatch(clearProductsRequest);
     dispatch(setStep(6));
     dispatch(getProducts(model, scheme));
   }, [dispatch, model, scheme]);
@@ -142,11 +155,19 @@ const EditTable = ({ match }: MatchProps) => {
   };
 
   const handleClickCalc = () => {
-    alert("Рассчитать линейно");
+    axios({
+      method: "post",
+      url: `${API_HOST}/${API_PATH}/${model}/schemes/${scheme}/wishes/`,
+      data: request,
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((res) => {
+      const schemeID: number = res.data["scheme_id"];
+      history.push(`/${model}/schemes/${schemeID}/purchase/1`);
+    });
   };
 
   const handleClickNotSave = () => {
-    history.push(`/${model}/schemes/${scheme}/purchase/1`);
+    history.push(`/${model}/schemes/${scheme}/budget`);
   };
 
   return (
@@ -210,99 +231,109 @@ const EditTable = ({ match }: MatchProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(
-              (
-                {
-                  id,
-                  code,
-                  name,
-                  last_volume,
-                  last_price,
-                  last_rent,
-                  amount,
-                  price,
-                  curr_rent,
-                },
-                index
-              ) => {
-                const isEditRow = editRow.hasOwnProperty(id);
+            {!loaded ? (
+              <Loader content={9} repeat={10} />
+            ) : (
+              <>
+                {rows.map(
+                  (
+                    {
+                      id,
+                      code,
+                      name,
+                      last_volume,
+                      last_price,
+                      last_rent,
+                      amount,
+                      price,
+                      curr_rent,
+                    },
+                    index
+                  ) => {
+                    const isEditRow = editRow.hasOwnProperty(id);
 
-                return (
-                  <TableRow key={id}>
-                    <TableCell>{code}</TableCell>
-                    <TableCell>{name}</TableCell>
-                    <TableCell>
-                      {isEditRow ? (
-                        <NumberFormat
-                          value={editRow[id].amount}
-                          onValueChange={({ value: v }) =>
-                            handleChangeEditField({ value: v }, id, "amount")
-                          }
-                          thousandSeparator={" "}
-                          customInput={TextField}
-                          InputProps={{
-                            color: "secondary",
-                          }}
-                        />
-                      ) : (
-                        +last_volume
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditRow ? (
-                        <NumberFormat
-                          value={editRow[id].price}
-                          onValueChange={({ value: v }) =>
-                            handleChangeEditField({ value: v }, id, "price")
-                          }
-                          thousandSeparator={" "}
-                          suffix={"\u20BD"}
-                          customInput={TextField}
-                          InputProps={{
-                            color: "secondary",
-                          }}
-                        />
-                      ) : (
-                        +last_price.toFixed(2)
-                      )}
-                    </TableCell>
-                    <TableCell>{+last_rent.toFixed(2)}</TableCell>
-                    <TableCell>{+amount}</TableCell>
-                    <TableCell>{+price.toFixed(2)}</TableCell>
-                    <TableCell>{+curr_rent.toFixed(2)}</TableCell>
-                    <TableCell align="center">
-                      {isEditRow ? (
-                        <>
-                          <IconButton
-                            size="small"
-                            color="secondary"
-                            onClick={() => handleClickSave(id, index)}
-                          >
-                            <SaveIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handleClickCancel(id)}
-                            size="small"
-                            color="secondary"
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        </>
-                      ) : (
-                        <IconButton
-                          color="secondary"
-                          size="small"
-                          onClick={() =>
-                            handleClickEditTable(id, +last_volume, last_price)
-                          }
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              }
+                    return (
+                      <TableRow key={id}>
+                        <TableCell>{code}</TableCell>
+                        <TableCell>{name}</TableCell>
+                        <TableCell>
+                          {isEditRow ? (
+                            <NumberFormat
+                              value={editRow[id].amount}
+                              onValueChange={({ value: v }) =>
+                                handleChangeEditField(
+                                  { value: v },
+                                  id,
+                                  "amount"
+                                )
+                              }
+                              thousandSeparator={" "}
+                              customInput={TextField}
+                              InputProps={{
+                                color: "secondary",
+                              }}
+                            />
+                          ) : (
+                            +amount
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isEditRow ? (
+                            <NumberFormat
+                              value={editRow[id].price}
+                              onValueChange={({ value: v }) =>
+                                handleChangeEditField({ value: v }, id, "price")
+                              }
+                              thousandSeparator={" "}
+                              suffix={"\u20BD"}
+                              customInput={TextField}
+                              InputProps={{
+                                color: "secondary",
+                              }}
+                            />
+                          ) : (
+                            +price.toFixed(2)
+                          )}
+                        </TableCell>
+                        <TableCell>{+last_rent.toFixed(2)}</TableCell>
+                        <TableCell>{+last_volume}</TableCell>
+                        <TableCell>{+last_price.toFixed(2)}</TableCell>
+                        <TableCell>{+curr_rent.toFixed(2)}</TableCell>
+                        <TableCell align="center">
+                          {isEditRow ? (
+                            <>
+                              <IconButton
+                                size="small"
+                                color="secondary"
+                                onClick={() => handleClickSave(id, index)}
+                              >
+                                <SaveIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleClickCancel(id)}
+                                size="small"
+                                color="secondary"
+                              >
+                                <CancelIcon />
+                              </IconButton>
+                            </>
+                          ) : (
+                            <IconButton
+                              color="secondary"
+                              size="small"
+                              onClick={() =>
+                                handleClickEditTable(id, +amount, price)
+                              }
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                )}
+              </>
             )}
           </TableBody>
         </Table>

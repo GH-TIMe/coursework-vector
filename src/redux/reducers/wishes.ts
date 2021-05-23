@@ -1,24 +1,34 @@
+import { expandOrCloseAll } from "../../helpers";
 import {
   SET_WISHES,
   SET_WISHES_STATUS,
   SAVE_WISHES,
+  CLEAR_WISHES_REQUEST,
   WishesActionType,
   WishesData,
   WishesItemTypes,
   WishesTypes,
-  BlocksData,
+  EXPAND_ALL_WISHES,
+  CLOSE_ALL_WISHES,
+  SET_WISHES_LOADED,
 } from "../../types";
 
-interface StateTypes {
+type StateTypes = {
   wishes: WishesTypes;
   status: any;
+  isOpen: boolean;
+  request: FormData;
   scheme: number;
-}
+  loaded: boolean;
+};
 
 const initialState: StateTypes = {
   wishes: {},
   status: {},
+  isOpen: false,
+  request: new FormData(),
   scheme: 1315,
+  loaded: true,
 };
 
 export const groupData = (data: WishesData[]) => {
@@ -113,8 +123,8 @@ export const getSumsAndAvg = (data: any) => {
   return data;
 };
 
-export const getKeysObj = (obj: any) => {
-  let newObj = { status: false };
+export const getKeysObj = (obj: any, open: boolean = false) => {
+  let newObj = { status: open };
   if (!Array.isArray(obj)) {
     for (let key in obj) {
       newObj = {
@@ -177,8 +187,28 @@ const products = (
         ...state,
       };
     }
+    case EXPAND_ALL_WISHES: {
+      return {
+        ...state,
+        status: expandOrCloseAll(state.status),
+        isOpen: true,
+      };
+    }
+    case CLOSE_ALL_WISHES: {
+      return {
+        ...state,
+        status: expandOrCloseAll(state.status, false),
+        isOpen: false,
+      };
+    }
+    case SET_WISHES_LOADED: {
+      return {
+        ...state,
+        loaded: action.payload,
+      };
+    }
     case SAVE_WISHES: {
-      const { key1, key2, amount, price, index } = action.payload;
+      const { id, key1, key2, amount, price, index } = action.payload;
 
       const key2Group = state.wishes[key1].values[key2].values;
 
@@ -191,6 +221,10 @@ const products = (
         };
       }
 
+      // формируем FormData для POST запроса
+      state.request.append(`${id}_amount`, amount);
+      state.request.append(`${id}_price`, price);
+
       const copyStateWishes = { ...state.wishes };
       let modifedState = copyStateWishes[key1].values[key2].values[index];
       modifedState.price = +price;
@@ -199,6 +233,12 @@ const products = (
       return {
         ...state,
         wishes: getSumsAndAvg(copyStateWishes),
+      };
+    }
+    case CLEAR_WISHES_REQUEST: {
+      return {
+        ...state,
+        request: new FormData(),
       };
     }
     default:

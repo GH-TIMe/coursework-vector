@@ -1,135 +1,81 @@
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { MatchProps, ProductionItemTypes } from "../types";
 
+import {
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
+
+import {
+  ExpandMore as ExpandMoreIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@material-ui/icons";
+
+import { CustomTooltip } from "../../../components";
+import { useStyles } from "../../../styles";
+import { RootState } from "../../../redux/reducers";
+import { AppThunkDispatch } from "../../../redux/store";
 import {
   closeAllProduction,
   expandAllProduction,
   getProduction,
   setProductionLoaded,
   setProductionStatus,
-} from "../redux/actions/production";
-import { setStep } from "../redux/actions/steps";
-import { CustomTooltip } from "../components";
+} from "../../../redux/actions/production";
+import { connect } from "react-redux";
+import { ProductionItemTypes } from "../../../types";
+import Loader from "../../../components/Loader";
 
-import {
-  Paper,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
+type BudgetProductionProps = ReturnType<typeof mapStateToProps> &
+  ReturnType<typeof mapDispatchToProps> & { model: string; scheme: string };
 
-import {
-  Clear as ClearIcon,
-  Done as DoneIcon,
-  ChevronRight as ChevronRightIcon,
-  ExpandMore as ExpandMoreIcon,
-} from "@material-ui/icons";
-
-import { useStyles } from "../styles";
-import { useAppSelector } from "../redux/store";
-import Loader from "../components/Loader";
-
-type ToolbarPropsTypes = {
-  model: string;
-  scheme: string | undefined;
-  changed: string | undefined;
-};
-
-const ProductionToolbar = ({ model, scheme, changed }: ToolbarPropsTypes) => {
+const BudgetProduction: React.FC<BudgetProductionProps> = ({
+  model,
+  scheme,
+  production,
+  productionStatus,
+  isOpen,
+  setProductionStatus,
+  expandAllProduction,
+  closeAllProduction,
+  getProduction,
+  loaded,
+  setProductionLoaded,
+}) => {
   const classes = useStyles();
-
-  const history = useHistory();
-
-  const handleClickRefuse = () => {
-    const URL =
-      changed !== "0"
-        ? `/${model}/schemes/${scheme}/wishes`
-        : `/${model}/wishes`;
-    history.push(URL);
-  };
-
-  const handleClickAccept = () => {
-    const URL =
-      changed !== "0"
-        ? `/${model}/schemes/${scheme}/budget`
-        : `/${model}/schemes/${scheme}/launch`;
-    history.push(URL);
-  };
-
-  return (
-    <Toolbar className={classes.toolBar}>
-      <div className="left-side">
-        <CustomTooltip title="Отказаться">
-          <IconButton
-            color="secondary"
-            aria-label="refuse"
-            onClick={handleClickRefuse}
-          >
-            <ClearIcon />
-          </IconButton>
-        </CustomTooltip>
-      </div>
-      <Typography variant="h6" component="h2">
-        Корректировка плана производства
-      </Typography>
-      <div className="right-side">
-        <CustomTooltip title="Принять">
-          <IconButton
-            color="primary"
-            aria-label="accept"
-            onClick={handleClickAccept}
-          >
-            <DoneIcon />
-          </IconButton>
-        </CustomTooltip>
-      </div>
-    </Toolbar>
-  );
-};
-
-const Production = ({ match }: MatchProps) => {
-  const classes = useStyles();
-
-  const dispatch = useDispatch();
-  const { id: model, id2: scheme, changed } = match.params;
 
   useEffect(() => {
-    dispatch(setProductionLoaded(false));
-    dispatch(setStep(changed !== "0" ? 6 : 3));
-    dispatch(getProduction(model, scheme, changed));
-  }, [dispatch, model, scheme, changed]);
+    setProductionLoaded(false);
+    getProduction(model, scheme);
+  }, [model, scheme, getProduction, setProductionLoaded]);
 
-  const {
-    production: rows,
-    status,
-    isOpen,
-    loaded,
-  } = useAppSelector((state) => state.production);
-
-  const handleClick = (...args: string[]) => {
-    dispatch(setProductionStatus(args));
+  const handleClickArrowProduction = (...args: string[]) => {
+    setProductionStatus(args);
   };
 
-  const handleExpandAll = () => {
+  const handleExpandAllProduction = () => {
     if (!isOpen) {
-      dispatch(expandAllProduction);
+      expandAllProduction();
     } else {
-      dispatch(closeAllProduction);
+      closeAllProduction();
     }
   };
 
   return (
-    <Paper className={classes.root}>
-      <TableContainer className={classes.container}>
-        <ProductionToolbar model={model} scheme={scheme} changed={changed} />
+    <Paper className={classes.budgetTables}>
+      <TableContainer>
+        <Toolbar className={classes.toolBar}>
+          <Typography variant="h6" component="h2">
+            План производства
+          </Typography>
+        </Toolbar>
         <Table stickyHeader aria-label="sticky table" size="small">
           <TableHead>
             <TableRow className={classes.header}>
@@ -140,7 +86,7 @@ const Production = ({ match }: MatchProps) => {
                   <IconButton
                     color="secondary"
                     aria-label="expand all"
-                    onClick={handleExpandAll}
+                    onClick={handleExpandAllProduction}
                     size="small"
                   >
                     {isOpen ? <ExpandMoreIcon /> : <ChevronRightIcon />}
@@ -158,7 +104,7 @@ const Production = ({ match }: MatchProps) => {
               <Loader empty={2} content={3} repeat={10} />
             ) : (
               <>
-                {Object.keys(rows).map((key1) => {
+                {Object.keys(production).map((key1) => {
                   return (
                     <React.Fragment key={key1}>
                       <TableRow>
@@ -168,14 +114,14 @@ const Production = ({ match }: MatchProps) => {
                             cursor: "pointer",
                           }}
                           colSpan={4}
-                          onClick={() => handleClick(key1)}
                         >
                           <IconButton
                             style={{ marginRight: 16 }}
                             color="secondary"
                             size="small"
+                            onClick={() => handleClickArrowProduction(key1)}
                           >
-                            {status[key1].status ? (
+                            {productionStatus[key1].status ? (
                               <ExpandMoreIcon />
                             ) : (
                               <ChevronRightIcon />
@@ -186,11 +132,11 @@ const Production = ({ match }: MatchProps) => {
                           </span>
                         </TableCell>
                         <TableCell style={{ fontWeight: 700 }} align="left">
-                          {+rows[key1].amount.toFixed(8)}
+                          {+production[key1].amount.toFixed(2)}
                         </TableCell>
                       </TableRow>
-                      {status[key1].status &&
-                        Object.keys(rows[key1].values).map((key2) => (
+                      {productionStatus[key1].status &&
+                        Object.keys(production[key1].values).map((key2) => (
                           <React.Fragment key={key2}>
                             <TableRow>
                               <TableCell />
@@ -200,14 +146,16 @@ const Production = ({ match }: MatchProps) => {
                                   fontWeight: "bold",
                                   cursor: "pointer",
                                 }}
-                                onClick={() => handleClick(key1, key2)}
                               >
                                 <IconButton
                                   size="small"
                                   color="secondary"
                                   style={{ marginRight: 16 }}
+                                  onClick={() =>
+                                    handleClickArrowProduction(key1, key2)
+                                  }
                                 >
-                                  {status[key1][key2].status ? (
+                                  {productionStatus[key1][key2].status ? (
                                     <ExpandMoreIcon />
                                   ) : (
                                     <ChevronRightIcon />
@@ -221,11 +169,15 @@ const Production = ({ match }: MatchProps) => {
                                 </span>
                               </TableCell>
                               <TableCell align="left">
-                                {+rows[key1].values[key2].amount.toFixed(8)}
+                                {
+                                  +production[key1].values[key2].amount.toFixed(
+                                    2
+                                  )
+                                }
                               </TableCell>
                             </TableRow>
-                            {status[key1][key2].status &&
-                              rows[key1].values[key2].values.map(
+                            {productionStatus[key1][key2].status &&
+                              production[key1].values[key2].values.map(
                                 (row: ProductionItemTypes, index: number) => {
                                   return (
                                     <TableRow key={`${key2}_${index}`}>
@@ -259,4 +211,21 @@ const Production = ({ match }: MatchProps) => {
   );
 };
 
-export default Production;
+const mapStateToProps = (state: RootState) => ({
+  production: state.production.production,
+  productionStatus: state.production.status,
+  isOpen: state.production.isOpen,
+  loaded: state.production.loaded,
+});
+
+const mapDispatchToProps = (dispatch: AppThunkDispatch) => ({
+  setProductionStatus: (args: string[]) => dispatch(setProductionStatus(args)),
+  expandAllProduction: () => dispatch(expandAllProduction),
+  closeAllProduction: () => dispatch(closeAllProduction),
+  getProduction: (model: string, scheme: string) =>
+    dispatch(getProduction(model, scheme, "1")),
+  setProductionLoaded: (status: boolean) =>
+    dispatch(setProductionLoaded(status)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(BudgetProduction);

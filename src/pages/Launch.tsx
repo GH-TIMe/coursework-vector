@@ -3,12 +3,21 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 
 import { useStyles } from "../styles";
-import { Button, Grid, TextField, Typography } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import NumberFormat from "react-number-format";
 
 import { setStep } from "../redux/actions/steps";
 
 import { MatchProps } from "../types";
+
+import axios from "axios";
+import { API_HOST, API_PATH } from "../config";
 
 interface NumberFormatCustomProps {
   inputRef: (instance: NumberFormat | null) => void;
@@ -57,7 +66,6 @@ const Launch = ({ match }: MatchProps) => {
   ) => {
     const intRegex = /^[0-9]*$/;
     const value = e.target.value.replace(/\s/g, "");
-    console.log(value);
     if (intRegex.test(value)) {
       setIntValueField({
         value,
@@ -76,9 +84,31 @@ const Launch = ({ match }: MatchProps) => {
 
   const history = useHistory();
 
+  const [loaded, setLoaded] = useState<boolean>(true);
+
   const handleClickRun = () => {
-    alert("Моделирование запущенно!");
-    history.push(`/${model}/schemes/${scheme}/wishes`);
+    const request = new FormData();
+    request.append("count", intValueField.value);
+    request.append("spread", interval);
+
+    setLoaded(false);
+
+    axios({
+      method: "post",
+      url: `${API_HOST}/${API_PATH}/${model}/schemes/${scheme}/launch/`,
+      data: request,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .finally(() => setLoaded(true))
+      .then((res) => {
+        const success: boolean = res.data["success"];
+
+        if (success) {
+          history.push(`/${model}/schemes/${scheme}/wishes`);
+        } else {
+          alert("Что пошло не так!");
+        }
+      });
   };
 
   return (
@@ -119,6 +149,13 @@ const Launch = ({ match }: MatchProps) => {
         </Grid>
         <Grid item xs={3} sm={6}>
           <Button color="secondary" onClick={handleClickRun}>
+            {!loaded && (
+              <CircularProgress
+                color="secondary"
+                size={20}
+                style={{ marginRight: 10 }}
+              />
+            )}
             Запустить моделирование
           </Button>
         </Grid>
